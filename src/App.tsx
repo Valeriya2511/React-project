@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import SearchForm from './searchBar/SearchBar';
 import SearchResults from './searchResult/SearchResult';
@@ -8,26 +8,18 @@ interface Pokemon {
   url: string;
 }
 
-interface AppState {
-  searchResults: Pokemon[];
-  lastSearchQuery: string;
-  error: boolean;
-}
+function App() {
+  const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
+  const [lastSearchQuery, setLastSearchQuery] = useState<string>('');
+  const [error, setError] = useState<boolean>(false);
 
-class App extends React.Component<object, AppState> {
-  state: AppState = {
-    searchResults: [],
-    lastSearchQuery: '',
-    error: false,
-  };
-
-  componentDidMount() {
+  useEffect(() => {
     const lastQuery = localStorage.getItem('lastSearchQuery') || '';
-    this.setState({ lastSearchQuery: lastQuery });
-    this.fetchSearchResults(lastQuery);
-  }
+    setLastSearchQuery(lastQuery);
+    fetchSearchResults(lastQuery);
+  }, []);
 
-  fetchSearchResults = (query: string) => {
+  const fetchSearchResults = (query: string) => {
     let apiUrl = 'https://pokeapi.co/api/v2/pokemon';
     if (query !== '') {
       apiUrl += `/${query}`;
@@ -42,49 +34,44 @@ class App extends React.Component<object, AppState> {
       })
       .then((data) => {
         if (data.results) {
-          this.setState({ searchResults: data.results, error: false });
+          setSearchResults(data.results);
+          setError(false);
         } else {
-          this.setState({ searchResults: [data], error: false });
+          setSearchResults([data]);
+          setError(false);
         }
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
-        this.setState({ error: true });
+        setError(true);
       });
   };
 
-  handleSearch = (query: string) => {
+  const handleSearch = (query: string) => {
     localStorage.setItem('lastSearchQuery', query);
-    this.setState({ lastSearchQuery: query });
-    this.fetchSearchResults(query);
+    setLastSearchQuery(query);
+    fetchSearchResults(query);
   };
 
-  triggerError = () => {
+  const triggerError = () => {
     throw new Error('Test error boundary');
   };
 
-  render() {
-    const { searchResults, lastSearchQuery, error } = this.state;
-
-    return (
-      <div>
-        <h1>Pokedex</h1>
-        <SearchForm
-          onSearch={this.handleSearch}
-          lastSearchQuery={lastSearchQuery}
-        />
-        <hr />
-        {error ? (
-          <div>
-            <p>Something went wrong. Please try again later.</p>
-            <button onClick={this.triggerError}>Trigger Error</button>
-          </div>
-        ) : (
-          <SearchResults results={searchResults} />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div>
+      <h1>Pokedex</h1>
+      <SearchForm onSearch={handleSearch} lastSearchQuery={lastSearchQuery} />
+      <hr />
+      {error ? (
+        <div>
+          <p>Something went wrong. Please try again later.</p>
+          <button onClick={triggerError}>Trigger Error</button>
+        </div>
+      ) : (
+        <SearchResults results={searchResults} />
+      )}
+    </div>
+  );
 }
 
 export default App;
