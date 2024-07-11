@@ -1,56 +1,43 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 
 interface SearchFormProps {
   onSearch: (query: string) => void;
   lastSearchQuery: string;
 }
 
-class SearchForm extends Component<SearchFormProps> {
-  state = {
-    searchQuery: '',
-  };
+const SearchForm = ({ lastSearchQuery, onSearch }: SearchFormProps) => {
+  const [count, setCount] = useState<string>('');
 
-  componentDidMount() {
-    const { lastSearchQuery } = this.props;
+  useEffect(() => {
     const savedQuery = localStorage.getItem('lastSearchQuery');
+
     if (savedQuery) {
-      this.setState({ searchQuery: savedQuery });
+      setCount(savedQuery);
     } else if (lastSearchQuery) {
-      this.setState({ searchQuery: lastSearchQuery });
+      setCount(lastSearchQuery);
     }
-  }
+  }, [lastSearchQuery]);
 
-  componentDidUpdate(prevProps: SearchFormProps) {
-    if (this.props.lastSearchQuery !== prevProps.lastSearchQuery) {
-      this.setState({ searchQuery: this.props.lastSearchQuery });
-    }
-  }
-
-  handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ searchQuery: event.target.value });
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCount(event.target.value);
   };
 
-  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const { searchQuery } = this.state;
-    this.props.onSearch(searchQuery.trim());
+    onSearch(count.trim());
   };
 
-  render() {
-    const { searchQuery } = this.state;
-
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <input
-          type="text"
-          placeholder="Search Pokemon..."
-          value={searchQuery}
-          onChange={this.handleInputChange}
-        />
-        <button type="submit">Search</button>
-      </form>
-    );
-  }
-}
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Search Pokemon..."
+        value={count}
+        onChange={handleInputChange}
+      />
+      <button type="submit">Search</button>
+    </form>
+  );
+};
 
 export default SearchForm;

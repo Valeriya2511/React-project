@@ -14,7 +14,7 @@ interface AppState {
   error: boolean;
 }
 
-class App extends React.Component<AppState> {
+class App extends React.Component<object, AppState> {
   state: AppState = {
     searchResults: [],
     lastSearchQuery: '',
