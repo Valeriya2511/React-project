@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import SearchForm from './searchBar/SearchBar';
 import SearchResults from './searchResult/SearchResult';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import NotFound from './notFound/notFound';
 
 interface Pokemon {
   name: string;
@@ -35,6 +37,7 @@ function App() {
       .then((data) => {
         if (data.results) {
           setSearchResults(data.results);
+          console.log(data.results);
           setError(false);
         } else {
           setSearchResults([data]);
@@ -58,19 +61,32 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>Pokedex</h1>
-      <SearchForm onSearch={handleSearch} lastSearchQuery={lastSearchQuery} />
-      <hr />
-      {error ? (
-        <div>
-          <p>Something went wrong. Please try again later.</p>
-          <button onClick={triggerError}>Trigger Error</button>
-        </div>
-      ) : (
-        <SearchResults results={searchResults} />
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div>
+              <h1>Pokedex</h1>
+              <SearchForm
+                onSearch={handleSearch}
+                lastSearchQuery={lastSearchQuery}
+              />
+              <hr />
+              {error ? (
+                <div>
+                  <p>Something went wrong. Please try again later.</p>
+                  <button onClick={triggerError}>Trigger Error</button>
+                </div>
+              ) : (
+                <SearchResults results={searchResults} />
+              )}
+            </div>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
 
