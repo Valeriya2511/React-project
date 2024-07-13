@@ -1,0 +1,15 @@
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'jsdom',
+  roots: [
+    "<rootDir>/src"
+  ],
+  transform: {
+    "^.+\\.tsx?$": "babel-jest",
+    ".(css|less)$": "<rootDir>/jest-config/style-mock.js"
+  },
+  moduleNameMapper: {
+    '\\.(css|less|sass|scss)$': 'identity-obj-proxy',
+  },
+  setupFilesAfterEnv: ['jest-fetch-mock'],
+};
