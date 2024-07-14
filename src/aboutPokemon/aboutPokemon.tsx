@@ -5,6 +5,9 @@ export interface PokemonData {
   name: string;
   height: number;
   weight: number;
+  sprites: {
+    front_default: string;
+  };
 }
 
 function AboutPokemon({
@@ -31,6 +34,9 @@ function AboutPokemon({
           name: data.name,
           height: data.height,
           weight: data.weight,
+          sprites: {
+            front_default: data.sprites.front_default,
+          },
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -49,7 +55,11 @@ function AboutPokemon({
       <h1>{pokemonData.name}</h1>
       <p>Height: {pokemonData.height}</p>
       <p>Weight: {pokemonData.weight}</p>
-      {/* Добавьте другие данные о покемоне, которые хотите отобразить */}
+      <img
+        width="150px"
+        src={pokemonData.sprites.front_default}
+        alt="pokemon"
+      />
       <button onClick={onClose}>Close</button>
     </div>
   );

@@ -69,30 +69,21 @@ const Pagination: React.FC<PaginationProps> = ({
 
   if (startPage > 1) {
     pages.unshift(
+      <li key="startEllipsis" className="disabled">
+        <span>...</span>
+      </li>
+    );
+    pages.unshift(
       <li key="1">
         <Link to={`${location.pathname}?page=1`}>1</Link>
       </li>
     );
-    if (startPage > 2) {
-      pages.unshift(
-        <li key="startEllipsis" className="disabled">
-          <span>...</span>
-        </li>
-      );
-    }
   }
 
   if (endPage < totalPages) {
-    if (endPage < totalPages - 1) {
-      pages.push(
-        <li key="endEllipsis" className="disabled">
-          <span>...</span>
-        </li>
-      );
-    }
     pages.push(
-      <li key={totalPages}>
-        <Link to={`${location.pathname}?page=${totalPages}`}>{totalPages}</Link>
+      <li key="endEllipsis" className="disabled">
+        <span>...</span>
       </li>
     );
   }
