@@ -1,6 +1,6 @@
 import React from 'react';
-import './pagination.css';
 import { Link, useLocation } from 'react-router-dom';
+import './pagination.css';
 
 interface PaginationProps {
   totalItems: number;

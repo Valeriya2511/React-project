@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import './App.css';
 import SearchForm from './searchBar/SearchBar';
 import SearchResults from './searchResult/SearchResult';
 import {
@@ -10,6 +9,7 @@ import {
 } from 'react-router-dom';
 import NotFound from './notFound/notFound';
 import Pagination from './pagination/pagination';
+import './App.css';
 
 interface Pokemon {
   name: string;
@@ -21,7 +21,7 @@ function App() {
   const [lastSearchQuery, setLastSearchQuery] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
   const [totalResults, setTotalResults] = useState<number>(0);
-  const itemsPerPage = 10; // Количество элементов на странице
+  const itemsPerPage = 50;
 
   const { page } = useParams<{ page: string }>();
 
@@ -71,7 +71,7 @@ function App() {
         <Route
           path="/"
           element={
-            <div>
+            <div className="list">
               <h1>Pokedex</h1>
               <SearchForm
                 onSearch={handleSearch}
