@@ -2,8 +2,14 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import SearchForm from './searchBar/SearchBar';
 import SearchResults from './searchResult/SearchResult';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useParams,
+} from 'react-router-dom';
 import NotFound from './notFound/notFound';
+import Pagination from './pagination/pagination';
 
 interface Pokemon {
   name: string;
@@ -14,18 +20,21 @@ function App() {
   const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
   const [lastSearchQuery, setLastSearchQuery] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
+  const [totalResults, setTotalResults] = useState<number>(0);
+  const itemsPerPage = 10; // Количество элементов на странице
+
+  const { page } = useParams<{ page: string }>();
 
   useEffect(() => {
     const lastQuery = localStorage.getItem('lastSearchQuery') || '';
     setLastSearchQuery(lastQuery);
-    fetchSearchResults(lastQuery);
-  }, []);
+    fetchSearchResults(parseInt(page || '1', 5));
+  }, [page]);
 
-  const fetchSearchResults = (query: string) => {
-    let apiUrl = 'https://pokeapi.co/api/v2/pokemon';
-    if (query !== '') {
-      apiUrl += `/${query}`;
-    }
+  const fetchSearchResults = (page: number) => {
+    let apiUrl = `https://pokeapi.co/api/v2/pokemon`;
+    const offset = (page - 1) * itemsPerPage;
+    apiUrl += `?offset=${offset}&limit=${itemsPerPage}`;
 
     fetch(apiUrl)
       .then((response) => {
@@ -35,14 +44,10 @@ function App() {
         return response.json();
       })
       .then((data) => {
-        if (data.results) {
-          setSearchResults(data.results);
-          console.log(data.results);
-          setError(false);
-        } else {
-          setSearchResults([data]);
-          setError(false);
-        }
+        console.log(data);
+        setSearchResults(data.results);
+        setTotalResults(data.count);
+        setError(false);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -53,7 +58,7 @@ function App() {
   const handleSearch = (query: string) => {
     localStorage.setItem('lastSearchQuery', query);
     setLastSearchQuery(query);
-    fetchSearchResults(query);
+    fetchSearchResults(1);
   };
 
   const triggerError = () => {
@@ -79,7 +84,13 @@ function App() {
                   <button onClick={triggerError}>Trigger Error</button>
                 </div>
               ) : (
-                <SearchResults results={searchResults} />
+                <>
+                  <SearchResults results={searchResults} />
+                  <Pagination
+                    totalItems={totalResults}
+                    itemsPerPage={itemsPerPage}
+                  />
+                </>
               )}
             </div>
           }
