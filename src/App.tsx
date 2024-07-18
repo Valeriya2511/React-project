@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Loader from './loader/loader';
 import SearchForm from './searchBar/SearchBar';
 import SearchResults from './searchResult/SearchResult';
 import {
@@ -20,6 +21,7 @@ function App() {
   const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
   const [lastSearchQuery, setLastSearchQuery] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [totalResults, setTotalResults] = useState<number>(0);
   const itemsPerPage = 20;
 
@@ -32,6 +34,7 @@ function App() {
   }, [page]);
 
   const fetchSearchResults = (query: string, page: number) => {
+    setLoading(true);
     let apiUrl = 'https://pokeapi.co/api/v2/pokemon';
     if (query !== '') {
       apiUrl += `/${query}`;
@@ -61,6 +64,9 @@ function App() {
       .catch((error) => {
         console.error('Error fetching data:', error);
         setError(true);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -87,7 +93,9 @@ function App() {
                 lastSearchQuery={lastSearchQuery}
               />
               <hr />
-              {error ? (
+              {loading ? (
+                <Loader />
+              ) : error ? (
                 <div>
                   <p>Something went wrong. Please try again later.</p>
                   <button onClick={triggerError}>Trigger Error</button>
