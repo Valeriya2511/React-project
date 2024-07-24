@@ -36,6 +36,7 @@ function AboutPokemon({
             front_default: datas.sprites.front_default,
           },
         });
+        setPokemonData(datas);
       } catch (error) {
         console.error('Error fetching data:', error);
       }

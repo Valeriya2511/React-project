@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import './SearchResult.css';
 import AboutPokemon from '../aboutPokemon/aboutPokemon';
+import './SearchResult.css';
 interface SearchResult {
   name: string;
   url: string;
@@ -15,7 +15,6 @@ function SearchResults({ results }: SearchResultsProps) {
   const [isActive, setIsActive] = useState(false);
 
   const handlePokemonClick = (pokemon: string) => {
-    console.log(selectedPokemon);
     setSelectedPokemon(pokemon);
   };
 
