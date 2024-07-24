@@ -9,6 +9,8 @@
     }
   ],
   "compilerOptions": {
-    "types": ["jest", "@testing-library/jest-dom"]
+    "types": ["jest", "@testing-library/jest-dom"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
   }
 }

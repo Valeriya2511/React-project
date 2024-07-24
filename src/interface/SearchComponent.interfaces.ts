@@ -7,7 +7,20 @@ export interface SearchResultState {
   searchQuery: string;
 }
 
-export interface Pokemon {
+export interface Pokemons {
+  count: number;
+  next: string;
+  previous: null;
+  results: [];
   name: string;
   url: string;
+}
+
+export interface PokemonName {
+  name: string;
+  height: number;
+  weight: number;
+  sprites: {
+    front_default: string;
+  };
 }

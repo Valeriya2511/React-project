@@ -8,6 +8,8 @@ import {
   Route,
   useParams,
 } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleTheme, RootState } from './store/store';
 import NotFound from './notFound/notFound';
 import Pagination from './pagination/pagination';
 import './App.css';
@@ -24,7 +26,6 @@ function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [totalResults, setTotalResults] = useState<number>(0);
   const itemsPerPage = 20;
-
   const { page } = useParams<{ page: string }>();
 
   useEffect(() => {
@@ -41,8 +42,6 @@ function App() {
     }
     const offset = (page - 1) * itemsPerPage;
     apiUrl += `?offset=${offset}&limit=${itemsPerPage}`;
-
-    console.log((apiUrl += `?offset=${offset}&limit=${itemsPerPage}`));
 
     fetch(apiUrl)
       .then((response) => {
@@ -80,13 +79,21 @@ function App() {
     throw new Error('Test error boundary');
   };
 
+  const themeMode = useSelector((state: RootState) => state.theme.mode);
+  const dispatch = useDispatch();
+
+  const toggleThemeHandler = () => {
+    dispatch(toggleTheme());
+  };
+
   return (
     <Router>
       <Routes>
         <Route
           path="/"
           element={
-            <div className="list">
+            <div className={`list ${themeMode}`}>
+              <button onClick={toggleThemeHandler}>Theme</button>
               <h1>Pokedex</h1>
               <SearchForm
                 onSearch={handleSearch}

@@ -19,7 +19,6 @@ function AboutPokemon({
   className?: string;
 }) {
   const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
-
   useEffect(() => {
     async function fetchData() {
       try {
@@ -28,21 +27,19 @@ function AboutPokemon({
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        const data = await response.json();
-        console.log(data);
+        const datas = await response.json();
         setPokemonData({
-          name: data.name,
-          height: data.height,
-          weight: data.weight,
+          name: datas.name,
+          height: datas.height,
+          weight: datas.weight,
           sprites: {
-            front_default: data.sprites.front_default,
+            front_default: datas.sprites.front_default,
           },
         });
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     }
-
     fetchData();
   }, [namePokemon]);
 
