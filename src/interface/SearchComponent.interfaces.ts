@@ -20,6 +20,10 @@ export interface PokemonName {
   name: string;
   height: number;
   weight: number;
+  species: {
+    name: string;
+    url: string;
+  };
   sprites: {
     front_default: string;
   };

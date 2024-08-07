@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Loader from './loader/loader';
 import SearchForm from './searchBar/SearchBar';
 import SearchResults from './searchResult/SearchResult';
@@ -6,12 +6,13 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useParams,
+  // useParams,
 } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme, RootState } from './store/store';
 import NotFound from './notFound/notFound';
 import Pagination from './pagination/pagination';
+import pokemonApi from './store/apiSlice';
 import './App.css';
 
 interface Pokemon {
@@ -25,54 +26,67 @@ function App() {
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [totalResults, setTotalResults] = useState<number>(0);
-  const itemsPerPage = 20;
-  const { page } = useParams<{ page: string }>();
+  const [numbPage, setNumbPage] = useState<number>(0);
+  const { data: dataAll } = pokemonApi.useGetAllPokemonNamesQuery();
+  const { data: dataName } = pokemonApi.useGetPokemonByNameQuery(
+    lastSearchQuery,
+    { skip: !lastSearchQuery }
+  );
+  const { data: dataAllPage } = pokemonApi.useGetPokemonPageQuery(numbPage);
+
+  useEffect(() => {
+    setLoading(true);
+
+    if (dataAll) {
+      setSearchResults(dataAll.results);
+      setTotalResults(dataAll.count);
+      setError(false);
+      setLoading(false);
+    }
+
+    if (dataAllPage) {
+      setSearchResults(dataAllPage.results);
+      setLoading(false);
+    }
+  }, [dataAllPage, dataAll]);
+
+  const fetchSearchResults = useCallback(
+    (query: string) => {
+      setLoading(true);
+      if (query === '') {
+        if (dataAll) {
+          setSearchResults(dataAll.results);
+          setTotalResults(dataAll.count);
+          setError(false);
+        }
+      } else {
+        if (dataName) {
+          setSearchResults([dataName.species]);
+          setError(false);
+        }
+      }
+      setLoading(false);
+    },
+    [dataAll, dataName]
+  );
 
   useEffect(() => {
     const lastQuery = localStorage.getItem('lastSearchQuery') || '';
     setLastSearchQuery(lastQuery);
-    fetchSearchResults(lastQuery, parseInt(page || '1', 5));
-  }, [page]);
+    fetchSearchResults(lastQuery);
+  }, [fetchSearchResults]);
 
-  const fetchSearchResults = (query: string, page: number) => {
-    setLoading(true);
-    let apiUrl = 'https://pokeapi.co/api/v2/pokemon';
-    if (query !== '') {
-      apiUrl += `/${query}`;
+  const getNumberPage = (page: number) => {
+    setNumbPage(page - 1);
+    if (dataAllPage) {
+      setSearchResults(dataAllPage.results);
     }
-    const offset = (page - 1) * itemsPerPage;
-    apiUrl += `?offset=${offset}&limit=${itemsPerPage}`;
-
-    fetch(apiUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.results) {
-          setSearchResults(data.results);
-          setTotalResults(data.count);
-          setError(false);
-        } else {
-          setSearchResults([data]);
-          setError(false);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-        setError(true);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
   };
 
   const handleSearch = (query: string) => {
     localStorage.setItem('lastSearchQuery', query);
     setLastSearchQuery(query);
-    fetchSearchResults(query, 1);
+    fetchSearchResults(query);
   };
 
   const triggerError = () => {
@@ -112,7 +126,7 @@ function App() {
                   <SearchResults results={searchResults} />
                   <Pagination
                     totalItems={totalResults}
-                    itemsPerPage={itemsPerPage}
+                    callback={getNumberPage}
                   />
                 </>
               )}

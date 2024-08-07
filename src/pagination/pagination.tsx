@@ -4,20 +4,20 @@ import './pagination.css';
 
 interface PaginationProps {
   totalItems: number;
-  itemsPerPage: number;
   pageRangeDisplayed?: number;
+  callback: (page: number) => void;
 }
 
 const Pagination: React.FC<PaginationProps> = ({
   totalItems,
-  itemsPerPage,
   pageRangeDisplayed = 5,
+  callback,
 }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   let currentPage = parseInt(queryParams.get('page') || '1', 10);
 
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalPages = Math.ceil(totalItems / 20);
 
   if (currentPage < 1) {
     currentPage = 1;
@@ -61,7 +61,11 @@ const Pagination: React.FC<PaginationProps> = ({
 
   for (let page = startPage; page <= endPage; page++) {
     pages.push(
-      <li key={page} className={currentPage === page ? 'active' : ''}>
+      <li
+        key={page}
+        className={currentPage === page ? 'active' : ''}
+        onClick={() => callback(page)}
+      >
         <Link to={`${location.pathname}?page=${page}`}>{page}</Link>
       </li>
     );
