@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import AboutPokemon from './AboutPokemon';
-import styles from '../styles/AboutPokemon.module.css';
+import styles from '../styles/SearchResults.module.css';
 interface SearchResult {
   name: string;
   url: string;
@@ -29,9 +29,9 @@ function SearchResults({ results }: SearchResultsProps) {
       <div className="normal-box">
         <ul className="normal-box-ul">
           {results.map((result, index) => (
-            <li key={index}>
+            <li key={index} className={styles.title_pokemon}>
               <strong
-                className="name-pokemon"
+                className={ styles.name_pokemon}
                 onClick={() => handlePokemonClick(result.name)}
               >
                 {result.name}
