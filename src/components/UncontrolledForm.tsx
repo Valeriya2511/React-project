@@ -71,7 +71,7 @@ const UncontrolledForm: React.FC = () => {
   }
 
   return (
-    <form className={style.form_uncontrolled_form} onSubmit={handleSubmit}>
+    <form className={style.uncontrolled_form} onSubmit={handleSubmit}>
       <label htmlFor="name">Name:</label>
       <input type="text" id="name" ref={nameRef} />
 

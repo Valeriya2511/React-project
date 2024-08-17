@@ -8,7 +8,7 @@ function Main() {
         <a className={style.link} href="/uncontrolled-form">
           Go to Uncontrolled Form
         </a>
-        <a className={style.link} href="/hook-form">
+        <a className={style.link} href="/react-hook-form">
           {' '}
           Go to React Hook Form
         </a>
