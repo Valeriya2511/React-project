@@ -1,10 +1,16 @@
-import { useRef } from 'react'
+import React, { useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState, AppDispatch } from '../redux/store'
+import { setUncontrolledData } from '../redux/reducers'
+import style from '../styles/UncontrolledForm.module.css'
 
-function UncontrolledForm() {
+const UncontrolledForm: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>()
+  const countries = useSelector((state: RootState) => state.formData.countries)
+
   const nameRef = useRef<HTMLInputElement>(null)
   const ageRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
-  const confirmEmailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
   const confirmPasswordRef = useRef<HTMLInputElement>(null)
   const genderRef = useRef<HTMLSelectElement>(null)
@@ -12,118 +18,104 @@ function UncontrolledForm() {
   const imageRef = useRef<HTMLInputElement>(null)
   const countryRef = useRef<HTMLSelectElement>(null)
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault()
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
-    const name = nameRef.current?.value || ''
-    const age = parseInt(ageRef.current?.value || '0', 10)
-    const email = emailRef.current?.value || ''
-    const confirmEmail = confirmEmailRef.current?.value || ''
-    const password = passwordRef.current?.value || ''
-    const confirmPassword = confirmPasswordRef.current?.value || ''
-    const gender = genderRef.current?.value || ''
-    const terms = termsRef.current?.checked || false
-    const image = imageRef.current?.files?.[0] || null
-    const country = countryRef.current?.value || ''
-
-    // Простейшие проверки
-    if (!name.match(/^[A-Z][a-z]+/)) {
-      alert('Name must start with an uppercase letter')
-      return
-    }
-
-    if (isNaN(age) || age < 0) {
-      alert('Age must be a non-negative number')
-      return
-    }
-
-    if (email !== confirmEmail) {
-      alert('Emails must match')
-      return
-    }
-
-    if (password !== confirmPassword) {
-      alert('Passwords must match')
-      return
-    }
-
-    if (
-      !password.match(
-        /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}/
-      )
-    ) {
-      alert(
-        'Password must be at least 8 characters long and include at least one number, one uppercase letter, one lowercase letter, and one special character'
-      )
-      return
-    }
-
-    if (!terms) {
-      alert('You must accept the terms and conditions')
-      return
-    }
-
-    if (image) {
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      if (!['image/png', 'image/jpeg'].includes(file.type)) {
+        alert('Invalid file type')
+        return
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File size exceeds 2 MB')
+        return
+      }
       const reader = new FileReader()
       reader.onloadend = () => {
-        const base64Image = reader.result as string
-        console.log('Image in Base64:', base64Image)
+        if (reader.result) {
+          setImagePreview(reader.result as string)
+          dispatch(setUncontrolledData({ image: reader.result as string }))
+        }
       }
-      reader.readAsDataURL(image)
+      reader.readAsDataURL(file)
     }
+  }
 
-    console.log({ name, age, email, password, gender, terms, country })
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (
+      nameRef.current &&
+      ageRef.current &&
+      emailRef.current &&
+      passwordRef.current &&
+      confirmPasswordRef.current &&
+      genderRef.current &&
+      termsRef.current &&
+      countryRef.current
+    ) {
+      dispatch(
+        setUncontrolledData({
+          name: nameRef.current.value,
+          age: parseInt(ageRef.current.value, 10),
+          email: emailRef.current.value,
+          password: passwordRef.current.value,
+          confirmPassword: confirmPasswordRef.current.value,
+          gender: genderRef.current.value as 'male' | 'female',
+          termsAccepted: termsRef.current.checked,
+          image: imagePreview || '',
+          country: countryRef.current.value,
+        })
+      )
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="name">Name</label>
-        <input id="name" type="text" ref={nameRef} />
-      </div>
-      <div>
-        <label htmlFor="age">Age</label>
-        <input id="age" type="number" ref={ageRef} />
-      </div>
-      <div>
-        <label htmlFor="email">Email</label>
-        <input id="email" type="email" ref={emailRef} />
-      </div>
-      <div>
-        <label htmlFor="confirmEmail">Confirm Email</label>
-        <input id="confirmEmail" type="email" ref={confirmEmailRef} />
-      </div>
-      <div>
-        <label htmlFor="password">Password</label>
-        <input id="password" type="password" ref={passwordRef} />
-      </div>
-      <div>
-        <label htmlFor="confirmPassword">Confirm Password</label>
-        <input id="confirmPassword" type="password" ref={confirmPasswordRef} />
-      </div>
-      <div>
-        <label htmlFor="gender">Gender</label>
-        <select id="gender" ref={genderRef}>
-          <option value="">Select</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div>
-        <label htmlFor="terms">Accept Terms and Conditions</label>
-        <input id="terms" type="checkbox" ref={termsRef} />
-      </div>
-      <div>
-        <label htmlFor="image">Upload Image</label>
-        <input id="image" type="file" ref={imageRef} />
-      </div>
-      <div>
-        <label htmlFor="country">Country</label>
-        <select id="country" ref={countryRef}>
-          {/* Заполните список стран из Redux хранилища */}
-        </select>
-      </div>
+    <form className={style.form_uncontrolled_form} onSubmit={handleSubmit}>
+      <label htmlFor="name">Name:</label>
+      <input type="text" id="name" ref={nameRef} />
+
+      <label htmlFor="age">Age:</label>
+      <input type="number" id="age" ref={ageRef} />
+
+      <label htmlFor="email">Email:</label>
+      <input type="email" id="email" ref={emailRef} />
+
+      <label htmlFor="password">Password:</label>
+      <input type="password" id="password" ref={passwordRef} />
+
+      <label htmlFor="confirmPassword">Confirm Password:</label>
+      <input type="password" id="confirmPassword" ref={confirmPasswordRef} />
+
+      <label htmlFor="gender">Gender:</label>
+      <select id="gender" ref={genderRef}>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+
+      <label htmlFor="terms">Accept Terms & Conditions:</label>
+      <input type="checkbox" id="terms" ref={termsRef} />
+
+      <label htmlFor="image">Upload Image:</label>
+      <input
+        type="file"
+        id="image"
+        accept=".png, .jpeg"
+        onChange={handleImageChange}
+        ref={imageRef}
+      />
+      {imagePreview && <img src={imagePreview} alt="Preview" width={100} />}
+
+      <label htmlFor="country">Country:</label>
+      <select id="country" ref={countryRef}>
+        {countries.map((country, index) => (
+          <option key={index} value={country}>
+            {country}
+          </option>
+        ))}
+      </select>
+      <br />
+
       <button type="submit">Submit</button>
     </form>
   )
