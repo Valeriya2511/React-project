@@ -1,0 +1,26 @@
+.wrapper_main {
+  display: flex;
+  flex-direction: column;
+}
+
+.links {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.link {
+  color:rgb(99, 99, 99);
+  border-radius: 10px;
+  padding: 5px;
+  transition: all 0.5s;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color:rgb(99, 99, 99);
+    box-shadow: 0px 0px 27px 0px rgba(0,0,0,0.10);
+  }
+}
