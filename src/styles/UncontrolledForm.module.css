@@ -25,6 +25,14 @@ button:active {
 .uncontrolled_form {
   display: flex;
   flex-direction: column;
+  width: 320px;
+}
+
+.message_error {
+  color: red;
+  margin-left: 10px;
+  margin-block-start: 0;
+  margin-block-end: 0;
 }
 
 @media (hover: hover) {

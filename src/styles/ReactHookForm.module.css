@@ -1,6 +1,7 @@
 .react_hook_form{
   display: flex;
   flex-direction: column;
+  width: 320px;
 }
 
 .message_error {
